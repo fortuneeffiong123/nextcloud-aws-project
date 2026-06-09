@@ -1,0 +1,185 @@
+NextCLOUD STORAGE PROJECT (AWS EC2) — FULL IMPLEMENTATION DOCUMENTATION
+
+🌍 Project Overview
+/This project sets up a self-hosted cloud storage system on an AWS EC2 Ubuntu server using:
+
+Apache Web Server
+MariaDB Database
+PHP (8.5 default on modern Ubuntu)
+Nextcloud (cloud storage platform)
+
+❗ WHY NEXTCLOUD INSTEAD OF OWNCLOUD
+🚫 OwnCloud Problem
+OwnCloud failed because of PHP incompatibility:
+
+This server runs on: PHP 8.5 while
+OwnCloud supports: PHP ≤ 8.0 / 8.1
+Result: ❌ Installation blocked
+
+✅ Why Nextcloud is the correct choice
+Nextcloud was chosen because:
+
+✔ PHP compatibility
+Works with PHP 8.3 / 8.4 / 8.5 (modern systems)
+✔ Actively maintained
+Frequent updates and security patches
+✔ Better ecosystem
+More apps (calendar, contacts, talk, collaboration tools)
+✔ Industry standard
+Used by enterprises and governments
+✔ Same purpose
+File storage, sharing, sync, user management
+
+👉 Conclusion: Nextcloud is the modern replacement for OwnCloud
+
+🏗️ FULL IMPLEMENTATION STEPS
+y
+🟢 PHASE 1 — AWS EC2 SETUP
+1. Launch EC2 Instance
+OS: Ubuntu Server (latest)
+Instance type: t2.micro or higher
+Storage: default (20GB recommended)
+
+2. Security Group Rules
+Allow:
+
+SSH (22) → Your IP only
+HTTP (80) → 0.0.0.0/0
+HTTPS (443) → optional later
+
+🟢 PHASE 2 — CONNECT TO SERVER
+From Windows PowerShell:
+
+ssh -i "OwnCloud-Key.pem" ubuntu@13.61.8.230
+
+🟢 PHASE 3 — SYSTEM UPDATE
+sudo apt update && sudo apt upgrade -y
+
+Expected Outcome
+
+✔ Updates system packages
+✔ Applies security patches
+⚠️ System reboot warning appears (ignored temporarily)
+
+🟢 PHASE 4 — INSTALL APACHE (WEB SERVER)
+sudo apt install apache2 -y
+Verify:
+apache2 -v
+
+Expected Outcome
+
+✔ Apache installed successfully
+
+🟢 PHASE 5 — INSTALL PHP (DEFAULT VERSION)
+sudo apt install php libapache2-mod-php php-mysql php-cli php-curl php-gd php-xml php-mbstring php-zip unzip -y
+
+Expected Outcome
+
+✔ PHP 8.5 installed automatically
+
+
+🟢 PHASE 6 — INSTALL MARIADB DATABASE
+sudo apt install mariadb-server mariadb-client -y
+Secure MariaDB
+sudo mariadb-secure-installation
+
+Steps:
+
+Set root password ✔
+Remove anonymous users ✔
+Remove test DB ✔
+Disable remote root login ✔
+Reload privileges ✔
+
+🟢 PHASE 7 — CREATE DATABASE FOR NEXTCLOUD
+
+Enter MariaDB:
+
+sudo mariadb
+
+Run:
+
+CREATE DATABASE owncloud;
+CREATE USER 'ownclouduser'@'localhost' IDENTIFIED BY 'Physical123/';
+GRANT ALL PRIVILEGES ON owncloud.* TO 'ownclouduser'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+✔ Database created
+✔ User created
+✔ Permissions granted
+
+🟢 PHASE 8 — DOWNLOAD NEXTCLOUD
+cd /tmp
+wget https://download.nextcloud.com/server/releases/latest.zip
+
+mkdir ~/nextcloud-install
+cd ~/nextcloud-install
+mv /tmp/latest.zip .
+unzip latest.zip
+
+✔ Extraction successful
+
+🟢 PHASE 10 — DEPLOY NEXTCLOUD
+sudo mv nextcloud /var/www/html/
+sudo chown -R www-data:www-data /var/www/html/nextcloud
+sudo chmod -R 755 /var/www/html/nextcloud
+
+🟢 PHASE 11 — ENABLE APACHE MODULES
+sudo a2enmod rewrite headers env dir mime
+sudo systemctl restart apache2
+
+Expected Outcome
+
+✔ Apache configured for Nextcloud
+
+🟢 PHASE 12 — VERIFY SERVER STATUS
+sudo systemctl status apache2
+
+Expected Outcome
+
+✔ Apache running correctly
+
+🟢 PHASE 13 — FINAL ACCESS
+
+Open in browser:
+
+http://13.61.8.230/nextcloud
+
+🟢 PHASE 14 — NEXTCLOUD WEB INSTALLATION
+Admin account:
+Username: admin
+Password: (user-defined secure password)
+Database configuration:
+Field	Value
+Database type	MySQL/MariaDB
+Database user	ownclouduser
+Database password	Physical123/
+Database name	owncloud
+Database host	localhost
+
+🎯 FINAL RESULT
+
+After installation:
+
+✔ Fully working Nextcloud cloud server
+✔ Web-based file storage system
+✔ User management system
+✔ Database-backed architecture
+✔ Apache + PHP + MariaDB stack
+
+⚠️ KEY LESSONS FROM THIS PROJECT
+1. Always check PHP compatibility first
+Prevents wasted installation time
+2. Avoid /tmp for large installs
+It is RAM-based, not disk-based
+3. Nextcloud > OwnCloud in modern systems
+Better compatibility
+More features
+Active development
+
+
+👨‍💻 Author
+Fortune Idorenyin Effiong
+Junior Cloud & DevOps Enthusiast
+AWS | Azure | Linux | System Administration | Backend Infrastructure
